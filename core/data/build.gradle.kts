@@ -1,23 +1,16 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "ru.nomad.rickandmorty"
+    namespace = "ru.nomad.rickandmorty.core.data"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "ru.nomad.rickandmorty"
         minSdk = 24
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
     }
 
     buildTypes {
@@ -35,19 +28,8 @@ android {
             jvmTarget = JvmTarget.JVM_21
         }
     }
-    buildFeatures {
-        compose = true
-    }
-    packaging {
-        resources.excludes += "DebugProbesKt.bin"
-    }
 }
 
 dependencies {
-    implementation(projects.core.designsystem)
 
-    implementation(libs.androidx.activity.compose)
-
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
 }
