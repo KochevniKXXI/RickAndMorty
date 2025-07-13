@@ -16,7 +16,17 @@ internal interface RetrofitRamNetworkApi {
 @Serializable
 @OptIn(InternalSerializationApi::class)
 internal data class NetworkResponse<T>(
+    val info: PageInfo,
     val results: T,
+)
+
+@Serializable
+@OptIn(InternalSerializationApi::class)
+internal data class PageInfo(
+    val count: Int,
+    val pages: Int,
+    val next: String?,
+    val prev: String?,
 )
 
 @Singleton
