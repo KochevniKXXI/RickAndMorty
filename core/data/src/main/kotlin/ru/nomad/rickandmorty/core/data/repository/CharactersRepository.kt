@@ -6,4 +6,5 @@ import ru.nomad.rickandmorty.core.model.Character
 
 interface CharactersRepository {
     fun getCharacters(): Flow<PagingData<Character>>
+    suspend fun getCharacter(id: Int): Character
 }
