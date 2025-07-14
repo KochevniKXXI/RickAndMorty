@@ -1,8 +1,15 @@
 package ru.nomad.rickandmorty.ui
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,29 +25,46 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import ru.nomad.rickandmorty.R
-import ru.nomad.rickandmorty.feature.characters.CharactersScreen
+import ru.nomad.rickandmorty.navigation.RamNavHost
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RamApp(
+    appState: RamAppState,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = stringResource(R.string.search_characters)
-                    )
+                    if (appState.currentDestinationIsGraph) {
+                        Text(
+                            text = stringResource(R.string.search_characters)
+                        )
+                    }
+                },
+                navigationIcon = {
+                    if (!appState.currentDestinationIsGraph) {
+                        IconButton(
+                            onClick = appState.navController::popBackStack
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                contentDescription = null
+                            )
+                        }
+                    }
                 },
                 actions = {
-                    IconButton(
-                        onClick = {}
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = null
-                        )
+                    if (appState.currentDestinationIsGraph) {
+                        IconButton(
+                            onClick = {}
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -52,22 +76,31 @@ fun RamApp(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {},
-                containerColor = MaterialTheme.colorScheme.inverseSurface
-            ) {
-                Icon(
-                    imageVector = Icons.Default.FilterList,
-                    contentDescription = null
-                )
+            if (appState.currentDestinationIsGraph) {
+                FloatingActionButton(
+                    onClick = {},
+                    containerColor = MaterialTheme.colorScheme.inverseSurface
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FilterList,
+                        contentDescription = null
+                    )
+                }
             }
         },
         modifier = modifier
     ) { contentPadding ->
-        CharactersScreen(
+        RamNavHost(
+            appState = appState,
             modifier = Modifier
-                .padding(contentPadding)
                 .fillMaxSize()
+                .padding(contentPadding)
+                .consumeWindowInsets(contentPadding)
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal,
+                    ),
+                )
         )
     }
 }

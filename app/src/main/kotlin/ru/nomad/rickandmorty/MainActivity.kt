@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import ru.nomad.rickandmorty.core.designsystem.theme.RamTheme
 import ru.nomad.rickandmorty.ui.RamApp
+import ru.nomad.rickandmorty.ui.rememberRamAppState
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -17,7 +18,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RamTheme {
-                RamApp(modifier = Modifier.fillMaxSize())
+                RamApp(
+                    appState = rememberRamAppState(),
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }

@@ -24,8 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import ru.nomad.rickandmorty.core.designsystem.component.ErrorWidget
@@ -39,7 +39,7 @@ import ru.nomad.rickandmorty.core.designsystem.R as designsystemR
 @Composable
 fun CharacterScreen(
     modifier: Modifier = Modifier,
-    viewModel: CharacterViewModel = viewModel()
+    viewModel: CharacterViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 

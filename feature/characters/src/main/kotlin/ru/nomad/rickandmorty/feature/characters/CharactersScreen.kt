@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -27,7 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -47,7 +48,8 @@ import ru.nomad.rickandmorty.core.designsystem.R as designsystemR
 @Composable
 fun CharactersScreen(
     modifier: Modifier = Modifier,
-    viewModel: CharactersViewModel = viewModel(),
+    onCharacterClick: (id: Int) -> Unit,
+    viewModel: CharactersViewModel = hiltViewModel(),
 ) {
     val uiState = viewModel.uiState.collectAsLazyPagingItems()
 
@@ -56,6 +58,7 @@ fun CharactersScreen(
     } else {
         CharactersGrid(
             lazyPagingCharacters = uiState,
+            onCharacterClick = onCharacterClick,
             modifier = modifier
         )
     }
@@ -64,6 +67,7 @@ fun CharactersScreen(
 @Composable
 private fun CharactersGrid(
     lazyPagingCharacters: LazyPagingItems<Character>,
+    onCharacterClick: (id: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyVerticalGrid(
@@ -77,28 +81,33 @@ private fun CharactersGrid(
             count = lazyPagingCharacters.itemCount
         ) { index ->
             lazyPagingCharacters[index]?.let {
-                CharacterItem(character = it)
+                CharacterItem(
+                    character = it,
+                    onClick = {
+                        onCharacterClick(it.id)
+                    }
+                )
             }
         }
 
         lazyPagingCharacters.apply {
             when {
                 loadState.refresh is LoadState.Loading -> {
-                    item { LoadingWidget() }
+                    item { LoadingWidget(modifier = Modifier.fillMaxWidth()) }
                 }
 
                 loadState.refresh is LoadState.Error -> {
                     val error = lazyPagingCharacters.loadState.refresh as LoadState.Error
-                    item { ErrorWidget(error.error.message) }
+                    item { ErrorWidget(error.error.message, Modifier.fillMaxWidth()) }
                 }
 
                 loadState.append is LoadState.Loading -> {
-                    item { LoadingWidget() }
+                    item { LoadingWidget(modifier = Modifier.fillMaxWidth()) }
                 }
 
                 loadState.append is LoadState.Error -> {
                     val error = lazyPagingCharacters.loadState.append as LoadState.Error
-                    item { ErrorWidget(error.error.message) }
+                    item { ErrorWidget(error.error.message, Modifier.fillMaxWidth()) }
                 }
             }
         }
@@ -109,13 +118,14 @@ private fun CharactersGrid(
 @Composable
 fun CharacterItem(
     character: Character,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val statusText = stringArrayResource(R.array.status)[character.status.ordinal]
     val genderText = stringArrayResource(R.array.gender)[character.gender.ordinal]
 
     Card(
-        onClick = {},
+        onClick = onClick,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.inverseSurface
         ),
@@ -201,7 +211,8 @@ private fun CharacterItemPreview() {
                 species = "Human",
                 gender = Gender.MALE,
                 image = ""
-            )
+            ),
+            onClick = {}
         )
     }
 }
@@ -249,6 +260,7 @@ private fun CharactersGridPreview() {
                     )
                 )
             ).collectAsLazyPagingItems(),
+            onCharacterClick = {},
             modifier = Modifier.fillMaxSize()
         )
     }
