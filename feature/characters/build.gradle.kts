@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.androidx.material3)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.paging.compose)
     implementation(libs.glide)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

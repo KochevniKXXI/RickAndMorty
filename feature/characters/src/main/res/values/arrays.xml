@@ -3,12 +3,12 @@
     <string-array name="status">
         <item>Жив</item>
         <item>Мёртв</item>
-        <item>Неизвестный</item>
+        <item>@string/unknown</item>
     </string-array>
     <string-array name="gender">
         <item>Мужской</item>
         <item>Женский</item>
         <item>Бесполый</item>
-        <item>Неизвестный</item>
+        <item>@string/unknown</item>
     </string-array>
 </resources>

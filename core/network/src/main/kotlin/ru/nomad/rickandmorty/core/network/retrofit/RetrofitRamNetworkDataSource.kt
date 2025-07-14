@@ -3,6 +3,7 @@ package ru.nomad.rickandmorty.core.network.retrofit
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 import retrofit2.http.GET
+import retrofit2.http.Query
 import ru.nomad.rickandmorty.core.network.RamNetworkDataSource
 import ru.nomad.rickandmorty.core.network.model.NetworkCharacter
 import javax.inject.Inject
@@ -10,7 +11,7 @@ import javax.inject.Singleton
 
 internal interface RetrofitRamNetworkApi {
     @GET("character")
-    suspend fun getCharacters(): NetworkResponse<List<NetworkCharacter>>
+    suspend fun getCharacters(@Query("page") page: Int): NetworkResponse<List<NetworkCharacter>>
 }
 
 @Serializable
@@ -33,5 +34,6 @@ internal data class PageInfo(
 internal class RetrofitRamNetworkDataSource @Inject constructor(
     private val ramApi: RetrofitRamNetworkApi
 ) : RamNetworkDataSource {
-    override suspend fun getCharacters(): List<NetworkCharacter> = ramApi.getCharacters().results
+    override suspend fun getCharacters(page: Int): List<NetworkCharacter> =
+        ramApi.getCharacters(page).results
 }

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Card
@@ -18,7 +17,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,10 +27,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import kotlinx.coroutines.flow.flowOf
 import ru.nomad.rickandmorty.core.designsystem.component.EmptyWidget
 import ru.nomad.rickandmorty.core.designsystem.component.ErrorWidget
 import ru.nomad.rickandmorty.core.designsystem.component.LoadingWidget
@@ -47,46 +49,21 @@ fun CharactersScreen(
     modifier: Modifier = Modifier,
     viewModel: CharactersViewModel = viewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState = viewModel.uiState.collectAsLazyPagingItems()
 
-    CharactersScreen(
-        uiState = uiState,
-        onRetryClick = viewModel::getCharacters,
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun CharactersScreen(
-    uiState: CharactersUiState,
-    onRetryClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    when (uiState) {
-        CharactersUiState.Loading ->
-            LoadingWidget(modifier = modifier)
-
-        is CharactersUiState.Error ->
-            ErrorWidget(
-                message = uiState.cause.message,
-                onRetryClick = onRetryClick,
-                modifier = modifier
-            )
-
-        CharactersUiState.Empty ->
-            EmptyWidget(modifier = modifier)
-
-        is CharactersUiState.Success ->
-            CharactersGrid(
-                characters = uiState.characters,
-                modifier = modifier
-            )
+    if (uiState.itemCount == 0) {
+        EmptyWidget(modifier = modifier)
+    } else {
+        CharactersGrid(
+            lazyPagingCharacters = uiState,
+            modifier = modifier
+        )
     }
 }
 
 @Composable
 private fun CharactersGrid(
-    characters: List<Character>,
+    lazyPagingCharacters: LazyPagingItems<Character>,
     modifier: Modifier = Modifier,
 ) {
     LazyVerticalGrid(
@@ -96,8 +73,34 @@ private fun CharactersGrid(
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(designsystemR.dimen.s_space)),
         modifier = modifier
     ) {
-        items(characters) { character ->
-            CharacterItem(character = character)
+        items(
+            count = lazyPagingCharacters.itemCount
+        ) { index ->
+            lazyPagingCharacters[index]?.let {
+                CharacterItem(character = it)
+            }
+        }
+
+        lazyPagingCharacters.apply {
+            when {
+                loadState.refresh is LoadState.Loading -> {
+                    item { LoadingWidget() }
+                }
+
+                loadState.refresh is LoadState.Error -> {
+                    val error = lazyPagingCharacters.loadState.refresh as LoadState.Error
+                    item { ErrorWidget(error.error.message) }
+                }
+
+                loadState.append is LoadState.Loading -> {
+                    item { LoadingWidget() }
+                }
+
+                loadState.append is LoadState.Error -> {
+                    val error = lazyPagingCharacters.loadState.append as LoadState.Error
+                    item { ErrorWidget(error.error.message) }
+                }
+            }
         }
     }
 }
@@ -208,40 +211,44 @@ private fun CharacterItemPreview() {
 private fun CharactersGridPreview() {
     RamTheme {
         CharactersGrid(
-            characters = listOf(
-                Character(
-                    id = 1,
-                    name = "Rick Sanchez",
-                    status = Status.ALIVE,
-                    species = "Human",
-                    gender = Gender.MALE,
-                    image = ""
-                ),
-                Character(
-                    id = 2,
-                    name = "Rick Sanchez",
-                    status = Status.ALIVE,
-                    species = "Human",
-                    gender = Gender.MALE,
-                    image = ""
-                ),
-                Character(
-                    id = 3,
-                    name = "Rick Sanchez",
-                    status = Status.ALIVE,
-                    species = "Human",
-                    gender = Gender.MALE,
-                    image = ""
-                ),
-                Character(
-                    id = 4,
-                    name = "Rick Sanchez",
-                    status = Status.ALIVE,
-                    species = "Human",
-                    gender = Gender.MALE,
-                    image = ""
+            lazyPagingCharacters = flowOf(
+                PagingData.from(
+                    listOf(
+                        Character(
+                            id = 1,
+                            name = "Rick Sanchez",
+                            status = Status.ALIVE,
+                            species = "Human",
+                            gender = Gender.MALE,
+                            image = ""
+                        ),
+                        Character(
+                            id = 2,
+                            name = "Rick Sanchez",
+                            status = Status.ALIVE,
+                            species = "Human",
+                            gender = Gender.MALE,
+                            image = ""
+                        ),
+                        Character(
+                            id = 3,
+                            name = "Rick Sanchez",
+                            status = Status.ALIVE,
+                            species = "Human",
+                            gender = Gender.MALE,
+                            image = ""
+                        ),
+                        Character(
+                            id = 4,
+                            name = "Rick Sanchez",
+                            status = Status.ALIVE,
+                            species = "Human",
+                            gender = Gender.MALE,
+                            image = ""
+                        )
+                    )
                 )
-            ),
+            ).collectAsLazyPagingItems(),
             modifier = Modifier.fillMaxSize()
         )
     }

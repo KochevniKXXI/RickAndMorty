@@ -1,7 +1,9 @@
 package ru.nomad.rickandmorty.core.data.repository
 
+import androidx.paging.PagingData
+import kotlinx.coroutines.flow.Flow
 import ru.nomad.rickandmorty.core.model.Character
 
 interface CharactersRepository {
-    suspend fun getCharacters(): List<Character>
+    fun getCharacters(): Flow<PagingData<Character>>
 }

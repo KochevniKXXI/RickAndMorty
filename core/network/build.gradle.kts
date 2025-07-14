@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.kotlinx.serialization.converter)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.paging.compose)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
