@@ -13,13 +13,19 @@ import javax.inject.Singleton
 
 @Singleton
 internal class NetworkCharactersRepository @Inject constructor(
-    private val charactersPagingSource: CharactersPagingSource,
     private val networkDataSource: RamNetworkDataSource,
 ) : CharactersRepository {
-    override fun getCharacters(): Flow<PagingData<Character>> {
+    override fun getCharacters(
+        nameFilter: String?
+    ): Flow<PagingData<Character>> {
         return Pager(
             config = PagingConfig(20),
-            pagingSourceFactory = { charactersPagingSource }
+            pagingSourceFactory = {
+                CharactersPagingSource(
+                    ramNetworkDataSource = networkDataSource,
+                    nameFilter = nameFilter
+                )
+            }
         ).flow
     }
 

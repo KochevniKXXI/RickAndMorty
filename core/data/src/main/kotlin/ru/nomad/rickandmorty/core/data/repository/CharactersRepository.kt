@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.Flow
 import ru.nomad.rickandmorty.core.model.Character
 
 interface CharactersRepository {
-    fun getCharacters(): Flow<PagingData<Character>>
+    fun getCharacters(
+        nameFilter: String? = null
+    ): Flow<PagingData<Character>>
     suspend fun getCharacter(id: Int): Character
 }

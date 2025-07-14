@@ -24,11 +24,13 @@ fun NavController.navigateToCharacter(
 ) = navigate(CharacterRoute(id)) { navOptions() }
 
 fun NavGraphBuilder.charactersSection(
+    searchQuery: String,
     onCharacterClick: (id: Int) -> Unit,
 ) {
     navigation<CharactersGraphRoute>(startDestination = CharactersRoute) {
         composable<CharactersRoute> {
             CharactersScreen(
+                searchQuery = searchQuery,
                 onCharacterClick = onCharacterClick
             )
         }

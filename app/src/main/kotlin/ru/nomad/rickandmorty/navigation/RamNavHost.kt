@@ -11,6 +11,7 @@ import ru.nomad.rickandmorty.ui.RamAppState
 @Composable
 fun RamNavHost(
     appState: RamAppState,
+    searchQuery: String,
     modifier: Modifier = Modifier
 ) {
     val navController = appState.navController
@@ -21,6 +22,7 @@ fun RamNavHost(
         modifier = modifier
     ) {
         charactersSection(
+            searchQuery = searchQuery,
             onCharacterClick = navController::navigateToCharacter
         )
     }

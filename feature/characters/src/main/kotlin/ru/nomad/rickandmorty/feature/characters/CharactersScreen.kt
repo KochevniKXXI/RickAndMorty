@@ -18,6 +18,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,11 +48,16 @@ import ru.nomad.rickandmorty.core.designsystem.R as designsystemR
 
 @Composable
 fun CharactersScreen(
+    searchQuery: String,
     modifier: Modifier = Modifier,
     onCharacterClick: (id: Int) -> Unit,
     viewModel: CharactersViewModel = hiltViewModel(),
 ) {
     val uiState = viewModel.uiState.collectAsLazyPagingItems()
+
+    LaunchedEffect(searchQuery) {
+        viewModel.fetchCharacters(searchQuery.ifEmpty { null })
+    }
 
     if (uiState.itemCount == 0) {
         EmptyWidget(modifier = modifier)

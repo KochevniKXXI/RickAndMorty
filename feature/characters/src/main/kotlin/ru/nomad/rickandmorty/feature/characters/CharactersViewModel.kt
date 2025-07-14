@@ -5,22 +5,32 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import ru.nomad.rickandmorty.core.data.repository.CharactersRepository
+import ru.nomad.rickandmorty.core.model.Character
 import javax.inject.Inject
 
 @HiltViewModel
 class CharactersViewModel @Inject constructor(
-    charactersRepository: CharactersRepository
+    private val charactersRepository: CharactersRepository
 ) : ViewModel() {
-    val uiState = charactersRepository.getCharacters()
-        .distinctUntilChanged()
-        .cachedIn(viewModelScope)
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = PagingData.empty()
-        )
+    private val _uiState = MutableStateFlow<PagingData<Character>>(PagingData.empty())
+    val uiState get() = _uiState.asStateFlow()
+
+    fun fetchCharacters(
+        nameFilter: String? = null
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            charactersRepository.getCharacters(nameFilter)
+                .distinctUntilChanged()
+                .cachedIn(viewModelScope)
+                .collect { characters ->
+                    _uiState.value = characters
+                }
+        }
+    }
 }

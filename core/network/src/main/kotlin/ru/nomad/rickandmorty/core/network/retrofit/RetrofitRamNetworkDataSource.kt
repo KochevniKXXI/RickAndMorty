@@ -12,7 +12,10 @@ import javax.inject.Singleton
 
 internal interface RetrofitRamNetworkApi {
     @GET("character")
-    suspend fun getCharacters(@Query("page") page: Int): NetworkResponse<List<NetworkCharacter>>
+    suspend fun getCharacters(
+        @Query("page") page: Int,
+        @Query("name") nameFilter: String? = null,
+    ): NetworkResponse<List<NetworkCharacter>>
 
     @GET("character/{id}")
     suspend fun getCharacter(@Path("id") id: Int): NetworkCharacter
@@ -38,8 +41,11 @@ internal data class PageInfo(
 internal class RetrofitRamNetworkDataSource @Inject constructor(
     private val ramApi: RetrofitRamNetworkApi
 ) : RamNetworkDataSource {
-    override suspend fun getCharacters(page: Int): List<NetworkCharacter> =
-        ramApi.getCharacters(page).results
+    override suspend fun getCharacters(
+        page: Int,
+        nameFilter: String?,
+    ): List<NetworkCharacter> =
+        ramApi.getCharacters(page, nameFilter).results
 
     override suspend fun getCharacter(id: Int): NetworkCharacter = ramApi.getCharacter(id)
 }
