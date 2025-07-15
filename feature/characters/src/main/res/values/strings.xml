@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="unknown">Неизвестно</string>
+    <string name="filters">Фильтры</string>
+    <string name="apply">Применить</string>
+    <string name="status">Состояние</string>
+    <string name="gender">Пол</string>
+    <string name="reset">Сбросить</string>
 </resources>

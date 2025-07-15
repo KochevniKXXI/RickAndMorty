@@ -27,10 +27,10 @@ class CharacterViewModel @Inject constructor(
         get() = _uiState.asStateFlow()
 
     init {
-        getCharacter()
+        loadCharacter()
     }
 
-    fun getCharacter() {
+    fun loadCharacter() {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = CharacterUiState.Loading
             _uiState.value = try {

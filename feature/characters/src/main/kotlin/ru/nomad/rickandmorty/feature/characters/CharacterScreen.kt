@@ -7,10 +7,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Badge
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -36,6 +40,7 @@ import ru.nomad.rickandmorty.core.model.Gender
 import ru.nomad.rickandmorty.core.model.Status
 import ru.nomad.rickandmorty.core.designsystem.R as designsystemR
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CharacterScreen(
     modifier: Modifier = Modifier,
@@ -43,11 +48,18 @@ fun CharacterScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    CharacterScreen(
-        uiState = uiState,
-        onRetryClick = viewModel::getCharacter,
+    PullToRefreshBox(
+        isRefreshing = uiState is CharacterUiState.Loading,
+        onRefresh = viewModel::loadCharacter,
         modifier = modifier
-    )
+    ) {
+        CharacterScreen(
+            uiState = uiState,
+            onRetryClick = viewModel::loadCharacter,
+            modifier = Modifier
+                .fillMaxSize()
+        )
+    }
 }
 
 @Composable
@@ -90,6 +102,7 @@ private fun CharacterDetails(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(designsystemR.dimen.s_space)),
         modifier = modifier
+            .verticalScroll(rememberScrollState())
     ) {
         if (LocalInspectionMode.current) {
             Image(

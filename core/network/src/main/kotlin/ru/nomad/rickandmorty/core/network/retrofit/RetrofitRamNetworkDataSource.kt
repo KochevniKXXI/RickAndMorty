@@ -15,6 +15,10 @@ internal interface RetrofitRamNetworkApi {
     suspend fun getCharacters(
         @Query("page") page: Int,
         @Query("name") nameFilter: String? = null,
+        @Query("status") statusFilter: String? = null,
+        @Query("species") speciesFilter: String? = null,
+        @Query("type") typeFilter: String? = null,
+        @Query("gender") genderFilter: String? = null,
     ): NetworkResponse<List<NetworkCharacter>>
 
     @GET("character/{id}")
@@ -23,14 +27,14 @@ internal interface RetrofitRamNetworkApi {
 
 @Serializable
 @OptIn(InternalSerializationApi::class)
-internal data class NetworkResponse<T>(
+data class NetworkResponse<T>(
     val info: PageInfo,
     val results: T,
 )
 
 @Serializable
 @OptIn(InternalSerializationApi::class)
-internal data class PageInfo(
+data class PageInfo(
     val count: Int,
     val pages: Int,
     val next: String?,
@@ -44,8 +48,19 @@ internal class RetrofitRamNetworkDataSource @Inject constructor(
     override suspend fun getCharacters(
         page: Int,
         nameFilter: String?,
-    ): List<NetworkCharacter> =
-        ramApi.getCharacters(page, nameFilter).results
+        statusFilter: String?,
+        speciesFilter: String?,
+        typeFilter: String?,
+        genderFilter: String?
+    ): NetworkResponse<List<NetworkCharacter>> =
+        ramApi.getCharacters(
+            page,
+            nameFilter,
+            statusFilter,
+            speciesFilter,
+            typeFilter,
+            genderFilter
+        )
 
     override suspend fun getCharacter(id: Int): NetworkCharacter = ramApi.getCharacter(id)
 }

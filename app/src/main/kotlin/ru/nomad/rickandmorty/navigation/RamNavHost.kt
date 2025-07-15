@@ -12,6 +12,8 @@ import ru.nomad.rickandmorty.ui.RamAppState
 fun RamNavHost(
     appState: RamAppState,
     searchQuery: String,
+    showFilters: Boolean,
+    onFilterSheetHide: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val navController = appState.navController
@@ -23,6 +25,8 @@ fun RamNavHost(
     ) {
         charactersSection(
             searchQuery = searchQuery,
+            showFilters = showFilters,
+            onFilterSheetHide = onFilterSheetHide,
             onCharacterClick = navController::navigateToCharacter
         )
     }

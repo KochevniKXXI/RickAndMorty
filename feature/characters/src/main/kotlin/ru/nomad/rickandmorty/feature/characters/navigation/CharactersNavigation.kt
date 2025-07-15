@@ -25,12 +25,16 @@ fun NavController.navigateToCharacter(
 
 fun NavGraphBuilder.charactersSection(
     searchQuery: String,
+    showFilters: Boolean,
+    onFilterSheetHide: (Boolean) -> Unit,
     onCharacterClick: (id: Int) -> Unit,
 ) {
     navigation<CharactersGraphRoute>(startDestination = CharactersRoute) {
         composable<CharactersRoute> {
             CharactersScreen(
                 searchQuery = searchQuery,
+                showFilters = showFilters,
+                onFilterSheetHide = onFilterSheetHide,
                 onCharacterClick = onCharacterClick
             )
         }
