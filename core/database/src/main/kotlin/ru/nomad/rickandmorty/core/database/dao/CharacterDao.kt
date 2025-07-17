@@ -7,6 +7,7 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import ru.nomad.rickandmorty.core.database.model.CharacterEntity
 import ru.nomad.rickandmorty.core.model.Gender
+import ru.nomad.rickandmorty.core.model.Species
 import ru.nomad.rickandmorty.core.model.Status
 
 @Dao
@@ -19,15 +20,16 @@ abstract class CharacterDao {
         SELECT * FROM characters WHERE
         name LIKE '%' || :nameFilter || '%' AND
         (:statusFilter IS NULL OR status = :statusFilter) AND
-        species LIKE :speciesFilter || '%' AND
+        (:speciesFilter IS NULL OR species = :speciesFilter) AND
+        (:typeFilter IS NULL OR type = :typeFilter) AND
         (:genderFilter IS NULL OR gender = :genderFilter)
         """
     )
     abstract fun getCharacterEntitiesAsPagingSource(
         nameFilter: String = "",
         statusFilter: Status? = null,
-        speciesFilter: String = "",
-//        typeFilter: String = "",
+        speciesFilter: Species? = null,
+        typeFilter: String? = null,
         genderFilter: Gender? = null
     ): PagingSource<Int, CharacterEntity>
 
@@ -36,15 +38,16 @@ abstract class CharacterDao {
         DELETE FROM characters WHERE
         name LIKE '%' || :nameFilter || '%' AND
         (:statusFilter IS NULL OR status = :statusFilter) AND
-        species LIKE :speciesFilter || '%' AND
+        (:speciesFilter IS NULL OR species = :speciesFilter) AND
+        (:typeFilter IS NULL OR type = :typeFilter) AND
         (:genderFilter IS NULL OR gender = :genderFilter)
         """
     )
     internal abstract suspend fun deleteByFilters(
         nameFilter: String = "",
         statusFilter: Status? = null,
-        speciesFilter: String = "",
-//        typeFilter: String = "",
+        speciesFilter: Species? = null,
+        typeFilter: String? = null,
         genderFilter: Gender? = null
     )
 
@@ -53,15 +56,15 @@ abstract class CharacterDao {
         characterEntities: List<CharacterEntity>,
         nameFilter: String = "",
         statusFilter: Status? = null,
-        speciesFilter: String = "",
-//        typeFilter: String = "",
+        speciesFilter: Species? = null,
+        typeFilter: String? = null,
         genderFilter: Gender? = null
     ) {
         deleteByFilters(
             nameFilter = nameFilter,
             statusFilter = statusFilter,
             speciesFilter = speciesFilter,
-//            typeFilter = typeFilter,
+            typeFilter = typeFilter,
             genderFilter = genderFilter
         )
         upsertCharacterEntities(characterEntities)

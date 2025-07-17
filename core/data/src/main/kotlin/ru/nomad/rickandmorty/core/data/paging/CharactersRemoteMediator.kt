@@ -1,5 +1,6 @@
 package ru.nomad.rickandmorty.core.data.paging
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -8,6 +9,7 @@ import ru.nomad.rickandmorty.core.data.model.asEntity
 import ru.nomad.rickandmorty.core.database.dao.CharacterDao
 import ru.nomad.rickandmorty.core.database.model.CharacterEntity
 import ru.nomad.rickandmorty.core.model.Gender
+import ru.nomad.rickandmorty.core.model.Species
 import ru.nomad.rickandmorty.core.model.Status
 import ru.nomad.rickandmorty.core.network.RamNetworkDataSource
 import ru.nomad.rickandmorty.core.network.model.NetworkCharacter
@@ -16,7 +18,7 @@ import ru.nomad.rickandmorty.core.network.model.NetworkCharacter
 class CharactersRemoteMediator(
     private val nameFilter: String? = null,
     private val statusFilter: Status? = null,
-    private val speciesFilter: String? = null,
+    private val speciesFilter: Species? = null,
     private val typeFilter: String? = null,
     private val genderFilter: Gender? = null,
     private val characterDao: CharacterDao,
@@ -51,17 +53,21 @@ class CharactersRemoteMediator(
                 page = page,
                 nameFilter = nameFilter,
                 statusFilter = statusFilter?.name?.lowercase(),
-                speciesFilter = speciesFilter,
+                speciesFilter = speciesFilter?.name?.lowercase(),
                 typeFilter = typeFilter,
                 genderFilter = genderFilter?.name?.lowercase(),
+            )
+            Log.d(
+                "SPECIES",
+                currentPage.toString() + response.results.joinToString(transform = { "${it.species} - ${it.type}" })
             )
 
             if (loadType == LoadType.REFRESH) {
                 characterDao.refreshCharacterEntities(
                     nameFilter = nameFilter ?: "",
                     statusFilter = statusFilter,
-                    speciesFilter = speciesFilter ?: "",
-//                typeFilter = typeFilter ?: "",
+                    speciesFilter = speciesFilter,
+                    typeFilter = typeFilter,
                     genderFilter = genderFilter,
                     characterEntities = response.results.map(NetworkCharacter::asEntity)
                 )

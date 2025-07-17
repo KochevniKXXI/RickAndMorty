@@ -4,6 +4,9 @@
     <string name="filters">Фильтры</string>
     <string name="apply">Применить</string>
     <string name="status">Состояние</string>
+    <string name="species">Разновидность</string>
+    <string name="type">Тип</string>
     <string name="gender">Пол</string>
     <string name="reset">Сбросить</string>
+    <string name="without_type">Без типа</string>
 </resources>

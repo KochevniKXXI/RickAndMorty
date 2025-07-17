@@ -13,6 +13,7 @@ import ru.nomad.rickandmorty.core.database.dao.CharacterDao
 import ru.nomad.rickandmorty.core.database.model.CharacterEntity
 import ru.nomad.rickandmorty.core.model.Character
 import ru.nomad.rickandmorty.core.model.Gender
+import ru.nomad.rickandmorty.core.model.Species
 import ru.nomad.rickandmorty.core.model.Status
 import ru.nomad.rickandmorty.core.network.RamNetworkDataSource
 import javax.inject.Inject
@@ -28,7 +29,7 @@ internal class DefaultCharactersRepository @Inject constructor(
     override fun getCharacters(
         nameFilter: String?,
         statusFilter: Status?,
-        speciesFilter: String?,
+        speciesFilter: Species?,
         typeFilter: String?,
         genderFilter: Gender?
     ): Flow<PagingData<Character>> {
@@ -47,8 +48,8 @@ internal class DefaultCharactersRepository @Inject constructor(
             characterDao.getCharacterEntitiesAsPagingSource(
                 nameFilter = nameFilter ?: "",
                 statusFilter = statusFilter,
-                speciesFilter = speciesFilter ?: "",
-//                typeFilter = typeFilter ?: "",
+                speciesFilter = speciesFilter,
+                typeFilter = typeFilter,
                 genderFilter = genderFilter
             )
         }.flow.map { pagingData ->

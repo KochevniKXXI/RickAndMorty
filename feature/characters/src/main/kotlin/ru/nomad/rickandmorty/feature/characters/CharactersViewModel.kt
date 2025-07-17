@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import ru.nomad.rickandmorty.core.data.repository.CharactersRepository
 import ru.nomad.rickandmorty.core.model.Character
 import ru.nomad.rickandmorty.core.model.Gender
+import ru.nomad.rickandmorty.core.model.Species
 import ru.nomad.rickandmorty.core.model.Status
 import javax.inject.Inject
 
@@ -33,13 +34,19 @@ class CharactersViewModel @Inject constructor(
     private val _statusFilter = MutableStateFlow<Status?>(null)
     val statusFilter = _statusFilter.asStateFlow()
 
+    private val _speciesFilter = MutableStateFlow<Species?>(null)
+    val speciesFilter = _speciesFilter.asStateFlow()
+
+    private val _typeFilter = MutableStateFlow<String?>(null)
+    val typeFilter = _typeFilter.asStateFlow()
+
     private val _genderFilter = MutableStateFlow<Gender?>(null)
     val genderFilter = _genderFilter.asStateFlow()
 
     suspend fun loadCharacters(
         nameFilter: String? = null,
         statusFilter: Status? = null,
-        speciesFilter: String? = null,
+        speciesFilter: Species? = null,
         typeFilter: String? = null,
         genderFilter: Gender? = null
     ) {
@@ -57,9 +64,13 @@ class CharactersViewModel @Inject constructor(
 
     fun applyFilters(
         statusFilter: Status?,
-        genderFilter: Gender?
+        speciesFilter: Species?,
+        typeFilter: String?,
+        genderFilter: Gender?,
     ) {
         _statusFilter.value = statusFilter
+        _speciesFilter.value = speciesFilter
+        _typeFilter.value = typeFilter
         _genderFilter.value = genderFilter
     }
 }

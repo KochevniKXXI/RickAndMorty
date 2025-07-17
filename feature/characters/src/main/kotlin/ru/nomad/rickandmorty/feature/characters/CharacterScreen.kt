@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,6 +38,7 @@ import ru.nomad.rickandmorty.core.designsystem.component.LoadingWidget
 import ru.nomad.rickandmorty.core.designsystem.theme.RamTheme
 import ru.nomad.rickandmorty.core.model.Character
 import ru.nomad.rickandmorty.core.model.Gender
+import ru.nomad.rickandmorty.core.model.Species
 import ru.nomad.rickandmorty.core.model.Status
 import ru.nomad.rickandmorty.core.designsystem.R as designsystemR
 
@@ -130,7 +132,9 @@ private fun CharacterDetails(
         )
 
         Text(
-            text = "$genderText | ${character.species}",
+            text = "$genderText | ${character.species.displayName} | ${character.type.ifBlank {
+                stringResource(R.string.without_type) 
+            }}",
             style = MaterialTheme.typography.bodyMedium,
         )
 
@@ -164,7 +168,8 @@ private fun CharacterDetailsPreview() {
                 id = 1,
                 name = "Rick Sanchez",
                 status = Status.ALIVE,
-                species = "Human",
+                species = Species.HUMAN,
+                type = "",
                 gender = Gender.MALE,
                 image = ""
             ),

@@ -63,6 +63,7 @@ import ru.nomad.rickandmorty.core.designsystem.component.LoadingWidget
 import ru.nomad.rickandmorty.core.designsystem.theme.RamTheme
 import ru.nomad.rickandmorty.core.model.Character
 import ru.nomad.rickandmorty.core.model.Gender
+import ru.nomad.rickandmorty.core.model.Species
 import ru.nomad.rickandmorty.core.model.Status
 import ru.nomad.rickandmorty.core.designsystem.R as designsystemR
 
@@ -78,13 +79,17 @@ fun CharactersScreen(
 ) {
     val uiState = viewModel.uiState.collectAsLazyPagingItems()
     val statusFilter by viewModel.statusFilter.collectAsStateWithLifecycle()
+    val speciesFilter by viewModel.speciesFilter.collectAsStateWithLifecycle()
+    val typeFilter by viewModel.typeFilter.collectAsStateWithLifecycle()
     val genderFilter by viewModel.genderFilter.collectAsStateWithLifecycle()
 
-    LaunchedEffect(searchQuery, statusFilter, genderFilter) {
+    LaunchedEffect(searchQuery, statusFilter, speciesFilter, typeFilter, genderFilter) {
         viewModel.loadCharacters(
             searchQuery.ifEmpty { null },
             statusFilter,
-            genderFilter = genderFilter
+            speciesFilter,
+            typeFilter,
+            genderFilter
         )
     }
 
@@ -106,6 +111,8 @@ fun CharactersScreen(
     if (showFilters) {
         FiltersSheet(
             statusFilter = statusFilter,
+            speciesFilter = speciesFilter,
+            typeFilter = typeFilter,
             genderFilter = genderFilter,
             onFilterSheetHide = onFilterSheetHide,
             onFiltersApply = viewModel::applyFilters
@@ -117,15 +124,17 @@ fun CharactersScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun FiltersSheet(
     statusFilter: Status?,
+    speciesFilter: Species?,
+    typeFilter: String?,
     genderFilter: Gender?,
     onFilterSheetHide: (Boolean) -> Unit,
-    onFiltersApply: (Status?, Gender?) -> Unit,
+    onFiltersApply: (Status?, Species?, String?, Gender?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     ModalBottomSheet(
         onDismissRequest = {
             onFilterSheetHide(
-                statusFilter != null || genderFilter != null
+                statusFilter != null || speciesFilter != null || genderFilter != null
             )
         },
         modifier = modifier
@@ -209,6 +218,80 @@ private fun FiltersSheet(
                 }
             }
 
+            Text(
+                text = stringResource(R.string.species),
+                modifier = Modifier
+                    .padding(horizontal = dimensionResource(designsystemR.dimen.m_space))
+            )
+
+            val (selectedSpecies, onSpeciesSelected) = rememberSaveable {
+                mutableStateOf(
+                    speciesFilter
+                )
+            }
+            Column(Modifier.selectableGroup()) {
+                Species.entries.forEach { species ->
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .selectable(
+                                selected = (species == selectedSpecies),
+                                onClick = { onSpeciesSelected(species) },
+                                role = Role.RadioButton
+                            )
+                            .padding(horizontal = dimensionResource(designsystemR.dimen.m_space)),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = species == selectedSpecies,
+                            onClick = null
+                        )
+                        Text(
+                            text = species.displayName,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = dimensionResource(designsystemR.dimen.m_space))
+                        )
+                    }
+                }
+            }
+
+            val (selectedType, onTypeSelected) = rememberSaveable { mutableStateOf(typeFilter) }
+            selectedSpecies?.let {
+                Text(
+                    text = stringResource(R.string.type),
+                    modifier = Modifier
+                        .padding(horizontal = dimensionResource(designsystemR.dimen.m_space))
+                )
+
+                Column(Modifier.selectableGroup()) {
+                    it.types.forEach { type ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .selectable(
+                                    selected = (type == selectedType),
+                                    onClick = { onTypeSelected(type) },
+                                    role = Role.RadioButton
+                                )
+                                .padding(horizontal = dimensionResource(designsystemR.dimen.m_space)),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = type == selectedType,
+                                onClick = null
+                            )
+                            Text(
+                                text = type.ifEmpty { stringResource(R.string.without_type) },
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(start = dimensionResource(designsystemR.dimen.m_space))
+                            )
+                        }
+                    }
+                }
+            }
+
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
@@ -217,9 +300,14 @@ private fun FiltersSheet(
             ) {
                 Button(
                     onClick = {
-                        onFiltersApply(selectedStatus, selectedGender)
+                        onFiltersApply(
+                            selectedStatus,
+                            selectedSpecies,
+                            selectedType,
+                            selectedGender
+                        )
                         onFilterSheetHide(
-                            selectedStatus != null || selectedGender != null
+                            selectedStatus != null || selectedSpecies != null || selectedGender != null
                         )
                     }
                 ) {
@@ -230,7 +318,7 @@ private fun FiltersSheet(
 
                 Button(
                     onClick = {
-                        onFiltersApply(null, null)
+                        onFiltersApply(null, null, null, null)
                         onFilterSheetHide(false)
                     },
                     colors = ButtonDefaults.buttonColors(
@@ -379,7 +467,7 @@ fun CharacterItem(
                 .basicMarquee()
         )
         Text(
-            text = "$genderText | ${character.species}",
+            text = "$genderText | ${character.species.displayName}",
             maxLines = 1,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier
@@ -400,7 +488,8 @@ private fun CharacterItemPreview() {
                 id = 1,
                 name = "Rick Sanchez",
                 status = Status.ALIVE,
-                species = "Human",
+                species = Species.HUMAN,
+                type = "",
                 gender = Gender.MALE,
                 image = ""
             ),
@@ -421,7 +510,8 @@ private fun CharactersGridPreview() {
                             id = 1,
                             name = "Rick Sanchez",
                             status = Status.ALIVE,
-                            species = "Human",
+                            species = Species.HUMAN,
+                            type = "",
                             gender = Gender.MALE,
                             image = ""
                         ),
@@ -429,7 +519,8 @@ private fun CharactersGridPreview() {
                             id = 2,
                             name = "Rick Sanchez",
                             status = Status.ALIVE,
-                            species = "Human",
+                            species = Species.HUMAN,
+                            type = "",
                             gender = Gender.MALE,
                             image = ""
                         ),
@@ -437,7 +528,8 @@ private fun CharactersGridPreview() {
                             id = 3,
                             name = "Rick Sanchez",
                             status = Status.ALIVE,
-                            species = "Human",
+                            species = Species.HUMAN,
+                            type = "",
                             gender = Gender.MALE,
                             image = ""
                         ),
@@ -445,7 +537,8 @@ private fun CharactersGridPreview() {
                             id = 4,
                             name = "Rick Sanchez",
                             status = Status.ALIVE,
-                            species = "Human",
+                            species = Species.HUMAN,
+                            type = "",
                             gender = Gender.MALE,
                             image = ""
                         )
