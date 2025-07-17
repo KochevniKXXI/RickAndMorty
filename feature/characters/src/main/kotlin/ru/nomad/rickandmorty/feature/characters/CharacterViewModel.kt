@@ -7,7 +7,6 @@ import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.nomad.rickandmorty.core.data.repository.CharactersRepository
@@ -23,8 +22,7 @@ class CharacterViewModel @Inject constructor(
     private val characterId = savedStateHandle.toRoute<CharacterRoute>().id
 
     private val _uiState = MutableStateFlow<CharacterUiState>(CharacterUiState.Loading)
-    val uiState: StateFlow<CharacterUiState>
-        get() = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
     init {
         loadCharacter()

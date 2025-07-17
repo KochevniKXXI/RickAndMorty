@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -88,7 +89,7 @@ fun CharactersScreen(
     }
 
     when {
-        uiState.loadState.refresh is LoadState.Loading && uiState.itemCount == 0 ->
+        uiState.loadState.refresh is LoadState.Loading ->
             LoadingWidget(modifier = modifier)
 
         uiState.itemCount == 0 ->
@@ -276,24 +277,24 @@ private fun CharactersGrid(
                 }
             }
 
-            lazyPagingCharacters.apply {
-                when {
-                    loadState.refresh is LoadState.Loading -> {
-                        item { LoadingWidget(modifier = Modifier.fillMaxWidth()) }
-                    }
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                lazyPagingCharacters.apply {
+                    when {
+                        loadState.refresh is LoadState.Loading ->
+                            LoadingWidget(modifier = Modifier.fillMaxWidth())
 
-                    loadState.refresh is LoadState.Error -> {
-                        val error = lazyPagingCharacters.loadState.refresh as LoadState.Error
-                        item { ErrorWidget(error.error.message, Modifier.fillMaxWidth(), ::retry) }
-                    }
+                        loadState.refresh is LoadState.Error -> {
+                            val error = lazyPagingCharacters.loadState.refresh as LoadState.Error
+                            ErrorWidget(error.error.message, Modifier.fillMaxWidth(), ::retry)
+                        }
 
-                    loadState.append is LoadState.Loading -> {
-                        item { LoadingWidget(modifier = Modifier.fillMaxWidth()) }
-                    }
+                        loadState.append is LoadState.Loading ->
+                            LoadingWidget(modifier = Modifier.fillMaxWidth())
 
-                    loadState.append is LoadState.Error -> {
-                        val error = lazyPagingCharacters.loadState.append as LoadState.Error
-                        item { ErrorWidget(error.error.message, Modifier.fillMaxWidth(), ::retry) }
+                        loadState.append is LoadState.Error -> {
+                            val error = lazyPagingCharacters.loadState.append as LoadState.Error
+                            ErrorWidget(error.error.message, Modifier.fillMaxWidth(), ::retry)
+                        }
                     }
                 }
             }

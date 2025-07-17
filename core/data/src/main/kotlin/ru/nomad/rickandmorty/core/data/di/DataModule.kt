@@ -5,12 +5,12 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import ru.nomad.rickandmorty.core.data.repository.CharactersRepository
-import ru.nomad.rickandmorty.core.data.repository.NetworkCharactersRepository
+import ru.nomad.rickandmorty.core.data.repository.DefaultCharactersRepository
 
 @Module
 @InstallIn(SingletonComponent::class)
 internal interface DataModule {
 
     @Binds
-    fun bindsCharactersRepository(charactersRepository: NetworkCharactersRepository): CharactersRepository
+    fun bindsCharactersRepository(charactersRepository: DefaultCharactersRepository): CharactersRepository
 }

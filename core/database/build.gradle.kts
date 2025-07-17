@@ -3,12 +3,12 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
-    namespace = "ru.nomad.rickandmorty.core.data"
+    namespace = "ru.nomad.rickandmorty.core.database"
     compileSdk = 36
 
     defaultConfig {
@@ -33,11 +33,13 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.database)
     implementation(projects.core.model)
-    implementation(projects.core.network)
 
-    implementation(libs.androidx.paging.compose)
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.paging)
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 }
